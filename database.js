@@ -87,7 +87,6 @@ function checkStock(id, units) {
                 });
             } else {
                 console.log('No more items in stock!');
-                customer.customerPage();
             }
         } else {
             console.log('Not a valid product!');

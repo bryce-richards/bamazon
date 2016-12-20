@@ -22,7 +22,22 @@ bamazon.connect(function(error) {
 
 var exports = module.exports = {};
 
+var Table = require('cli-table');
+
+var colors = require('colors');
+
+var welcome = new Table(
+    {
+        head: ['Welcome to Bamazon!'.rainbow],
+        chars: { 'top': '═' , 'top-mid': '╤' , 'top-left': '╔' , 'top-right': '╗'
+        , 'bottom': '═' , 'bottom-mid': '╧' , 'bottom-left': '╚' , 'bottom-right': '╝'
+        , 'left': '║' , 'left-mid': '╟' , 'mid': '─' , 'mid-mid': '┼'
+        , 'right': '║' , 'right-mid': '╢' , 'middle': '│' }
+    }
+);
+
 function customerPage() {
+    console.log(welcome.toString());
     return database.displayProducts()
     .then(function() {
         return inquirer.prompt([
