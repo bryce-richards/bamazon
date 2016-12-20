@@ -29,3 +29,19 @@ VALUES ('Diablo III: Ultimate Evil Edition for PS4','Video Games','49.99',20);
 DELETE FROM products WHERE item_id = '2';
 
 UPDATE products SET stock_quantity = 20 WHERE item_id = 1;
+
+CREATE TABLE managers (
+    mgr_id INTEGER(10) AUTO_INCREMENT NOT NULL,
+    mgr_first_name VARCHAR(50) NOT NULL,
+    mgr_last_name VARCHAR(50) NOT NULL,
+    mgr_gender VARCHAR(1) NOT NULL,
+    mgr_username VARCHAR(50) NOT NULL,
+    mgr_password VARCHAR(50) NOT NULL,
+    PRIMARY KEY (mgr_id)
+);
+
+INSERT INTO managers (mgr_first_name, mgr_last_name, mgr_gender, mgr_username, mgr_password)
+VALUES ('Bryce', 'Richards', 'M', 'brichards', 'password'),
+('Cameron', 'Manavian', 'M', 'cmanavian', 'password'); 
+
+DESCRIBE managers;

@@ -20,25 +20,10 @@ bamazon.connect(function(error) {
     }
 });
 
-var Table = require('cli-table');
-
-var colors = require('colors');
-
-var homeTbl = new Table(
-    {
-        head: ['Welcome to Bamazon!'.rainbow],
-        chars: { 'top': '═' , 'top-mid': '╤' , 'top-left': '╔' , 'top-right': '╗'
-            , 'bottom': '═' , 'bottom-mid': '╧' , 'bottom-left': '╚' , 'bottom-right': '╝'
-            , 'left': '║' , 'left-mid': '╟' , 'mid': '─' , 'mid-mid': '┼'
-            , 'right': '║' , 'right-mid': '╢' , 'middle': '│' }
-    }
-);
-
 var exports = module.exports = {};
 
 function customerPage() {
-    console.log(homeTbl.toString());
-    database.displayProducts()
+    return database.displayProducts()
     .then(function() {
         return inquirer.prompt([
             {
@@ -55,7 +40,6 @@ function customerPage() {
             }
         });
     })
-    .then(customerPage)
     .catch(function(error) {
         throw error;
     });
@@ -82,7 +66,5 @@ function makePurchase() {
         }
     });
 }
-
-
 
 exports.customerPage = customerPage;
