@@ -29,9 +29,10 @@ Managers can login with their pre-registered username and password. If granted a
 Work In Progress...
 
 
-## Demo
-To download a demo of this application in action, click this [link](https://github.com/bryce-richards/bamazon/blob/master/demo2.mp4?raw=true)
+## Demos
+To download a demo of this application in action, click this [link](https://github.com/bryce-richards/bamazon/blob/master/demo.mp4?raw=true)
 
+To download a preview of the department sales functionality, click this [link](https://github.com/bryce-richards/bamazon/blob/master/add_sales_demo.mp4?raw=true)
 
 ## Questions/Comments
 Can be directed to Bryce @ **brichards5@gmail.com**.
