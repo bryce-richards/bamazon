@@ -20,10 +20,10 @@ inquirer.prompt([
             customer.customerPage();
             break;
         case 'Manager' :
-            manager.managerStart();
+            manager.managerPage();
             break;
         case 'Executive' :
-            executive.exeuctiveStart();
+            executive.exeuctivePage();
             break;
         case 'Exit' :
             console.log('See you next time!');

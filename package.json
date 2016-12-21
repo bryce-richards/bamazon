@@ -18,6 +18,7 @@
   "homepage": "https://github.com/bryce-richards/bamazon#readme",
   "dependencies": {
     "bluebird": "^3.4.6",
+    "clear": "0.0.1",
     "cli-table": "^0.3.1",
     "colors": "^1.1.2",
     "inquirer": "^2.0.0",

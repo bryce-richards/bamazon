@@ -28,101 +28,174 @@ var query = bluebird.promisify(connection.query, {
 
 var exports = module.exports = {};
 
-function checkStock(id, units) {
-    this.units = units;
-    this.id = id;
-    query('SELECT stock_quantity, price FROM products WHERE ?', {
-        item_id : this.id
-    }, function(error, results) {
-        if (error) {
-            console.log('Check Stock Query Error: ', error);
-        }
-        return results;
-    })
-    .catch(function(error) {
-        console.log('CHECK STOCK ERROR: ', error);
-        process.exit();
-    })
-}
-
 function customerDisplay() {
     var customerProducts = new Table(
         {
-            head: ["ID", "Product", "Category", "Department", "Price"],
+            head: ['ID', 'Product', 'Category', 'Department', 'Price'],
             chars: { 'top': '═' , 'top-mid': '╤' , 'top-left': '╔' , 'top-right': '╗'
                 , 'bottom': '═' , 'bottom-mid': '╧' , 'bottom-left': '╚' , 'bottom-right': '╝'
                 , 'left': '║' , 'left-mid': '╟' , 'mid': '─' , 'mid-mid': '┼'
                 , 'right': '║' , 'right-mid': '╢' , 'middle': '│' }
         }
     );
-    return query('SELECT item_id, product_name, department_name, price FROM products ORDER BY department_name,' +
-        ' product_name', function(error, results) {
-        if (error) {
-            console.log('Customer Display Error', error);
-        } else {
-            for (var i = 0; i < results.length; i++) {
-                customerProducts.push(
-                    [
-                        results[i].item_id,
-                        results[i].product_name,
-                        results[i].category_name,
-                        results[i].department_name,
-                        '$' + results[i].price
-                    ]
-                );
-            }
-            console.log(customerProducts.toString());
+    return query('SELECT item_id, product_name, category_name, department_name, price FROM products ORDER BY department_name, product_name')
+    .then(function(results) {
+        for (var i = 0; i < results.length; i++) {
+            customerProducts.push(
+                [
+                    results[i].item_id,
+                    results[i].product_name,
+                    results[i].category_name,
+                    results[i].department_name,
+                    '$' + results[i].price
+                ]
+            );
         }
+        console.log(customerProducts.toString());
     })
     .catch(function(error) {
         console.log('Display Products Error: ',error);
     });
 }
 
-function displayMgrProducts() {
-    var productsTbl = new Table(
+function checkStock(id) {
+    return query('SELECT stock_quantity, price, department_name FROM products WHERE ?', {
+        item_id : id
+    })
+    .then(function(results) {
+        if (results.length) {
+            return results;
+        } else {
+            return false;
+        }
+    })
+    .catch(function(error) {
+        console.log('Check Stock Error: ', error);
+        process.exit();
+    })
+}
+
+function addSales(department, sales) {
+    return query('UPDATE departments SET ? WHERE ?', [{
+        total_sales: sales
+    }, {
+        department_name: department
+    }]);
+}
+
+function removeStock(id, units, stock) {
+    var updateStock = parseInt(stock - units);
+    return query('UPDATE products SET ? WHERE ?', [{
+        stock_quantity: updateStock
+    }, {
+        item_id: id
+    }]);
+}
+
+function managerDisplay() {
+    var managerProducts = new Table(
         {
-            head: ["ID", "Product", "Category", "Price", "Stock"],
+            head: ['ID', 'Product', 'Category', 'Department', 'Price', 'Stock'],
             chars: { 'top': '═' , 'top-mid': '╤' , 'top-left': '╔' , 'top-right': '╗'
                 , 'bottom': '═' , 'bottom-mid': '╧' , 'bottom-left': '╚' , 'bottom-right': '╝'
                 , 'left': '║' , 'left-mid': '╟' , 'mid': '─' , 'mid-mid': '┼'
                 , 'right': '║' , 'right-mid': '╢' , 'middle': '│' }
         }
     );
-    return query('SELECT item_id, product_name, department_name, price FROM products ORDER BY department_name, product_name')
-        .then(function(results) {
+    return query('SELECT item_id, product_name, category_name, department_name, price, stock FROM products ORDER BY department_name, product_name')
+    .then(function(results) {
+        for (var i = 0; i < results.length; i++) {
+            productsTbl.push(
+                [
+                    results[i].item_id,
+                    results[i].product_name,
+                    results[i].category_name,
+                    results[i].department_name,
+                    '$' + results[i].price,
+                    results[i].stock_quantity
+                ]
+            );
+        }
+        console.log(managerProducts.toString());
+    })
+    .catch(function(error) {
+        console.log('Display Products Error: ',error);
+        process.exit();
+    });
+}
+
+function managerLogin(username, password) {
+    console.log('Manager username: ', username + '\nPassword: ', password);
+    return query('SELECT mgr_first_name FROM managers WHERE ? AND ?', [
+        {
+            mgr_username: username
+        },
+        {
+            mgr_password : password
+        }
+    ])
+    .then(function(results) {
+        if (results.length) {
+            return results[0].mgr_first_name;
+        } else {
+            return false;
+        }
+    });
+}
+
+function lowInventory() {
+    return query('SELECT item_id, product_name, department_name, price, stock_quantity FROM top5000 WHERE stock_quantity HAVING count < 5')
+    .then(function(results) {
+        if (results.length) {
+            var lowInventoryTbl = new Table(
+                {
+                    head: ['ID', 'Product', 'Category', 'Department', 'Price', 'Stock'],
+                    chars: {
+                        'top': '═', 'top-mid': '╤', 'top-left': '╔', 'top-right': '╗'
+                        , 'bottom': '═', 'bottom-mid': '╧', 'bottom-left': '╚', 'bottom-right': '╝'
+                        , 'left': '║', 'left-mid': '╟', 'mid': '─', 'mid-mid': '┼'
+                        , 'right': '║', 'right-mid': '╢', 'middle': '│'
+                    }
+                }
+            );
             for (var i = 0; i < results.length; i++) {
-                productsTbl.push(
+                lowInventoryTbl.push(
                     [
                         results[i].item_id,
                         results[i].product_name,
+                        results[i].category_name,
                         results[i].department_name,
                         '$' + results[i].price,
                         results[i].stock_quantity
                     ]
-                );
+                )
             }
-            console.log(productsTbl.toString());
-        })
-        .catch(function(error) {
-            console.log('Display Products Error: ',error);
-        });
+            console.log(lowInventoryTbl);
+        } else {
+            console.log('All products are sufficiently stocked!');
+        }
+    });
 }
 
-function removeStock(id, units, stock) {
-    var updateStock = parseInt(stock - units);
-    return query("UPDATE products SET ? WHERE ?", [{
-        stock_quantity: updateStock
+function addInventory(id, stock) {
+    return query('UPDATE products SET ? WHERE ?', [{
+        stock_quantity: stock
     }, {
         item_id: id
-    }], function(error) {
+    }]).then(function(error) {
         if (error) {
-            console.log('Remove Stock Error: ', error);
+            console.log('Add Inventory Error: ', error);
+        } else {
+            return true;
         }
     });
 }
 
 exports.checkStock = checkStock;
 exports.removeStock = removeStock;
+exports.addSales = addSales;
 exports.customerDisplay = customerDisplay;
-exports.displayMgrProducts = displayMgrProducts;
+exports.managerDisplay = managerDisplay;
+exports.managerLogin = managerLogin;
+exports.lowInventory = lowInventory;
+exports.addInventory = addInventory;

@@ -5,8 +5,9 @@
 // HINTS:
 // will need to use joins
 // may need to look into grouping in MySql
+var exports = module.exports = {};
 
-function executiveStart() {
+function executivePage() {
 
 }
 
@@ -18,3 +19,4 @@ function createDepartment() {
 
 }
 
+exports.executivePage = executivePage;
