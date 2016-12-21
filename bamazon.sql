@@ -41,7 +41,9 @@ VALUES ('Video Games',5000,0),
 ('Toys & Games',5000,0),
 ('Books',1000,0);
 
-UPDATE products SET stock_quantity = 20 WHERE item_id = 1;
+SELECT * FROM departments;
+
+UPDATE products SET stock_quantity = 4 WHERE item_id IN (8);
 
 CREATE TABLE managers (
     mgr_id INTEGER(10) AUTO_INCREMENT NOT NULL,

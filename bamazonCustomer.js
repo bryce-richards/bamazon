@@ -110,7 +110,6 @@ function makePurchase() {
                                 database.removeStock(id, units, stock);
                                 // update sales
                                 database.addSales(department, total);
-                                clear();
                                 inquirer.prompt([
                                     {
                                         name: 'confirm',

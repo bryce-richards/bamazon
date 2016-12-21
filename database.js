@@ -117,6 +117,7 @@ function checkStock(id) {
 }
 
 function addSales(department, sales) {
+    console.log('Adding sales to database...');
     return query('UPDATE departments SET ? WHERE ?', [{
         total_sales: sales
     }, {
