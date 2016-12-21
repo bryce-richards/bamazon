@@ -6,7 +6,7 @@ var inquirer = require('inquirer');
 
 var database = require('./database.js');
 
-var bamazon = mysql.createConnection({
+var connection = mysql.createConnection({
     host: 'localhost',
     port: 3306,
     user: 'root',
@@ -14,7 +14,7 @@ var bamazon = mysql.createConnection({
     database: 'Bamazon'
 });
 
-bamazon.connect(function(error) {
+connection.connect(function(error) {
     if (error) {
         console.log('Products MySql Connection Error: ', error);
     }
@@ -32,8 +32,8 @@ var Table = require('cli-table');
 
 var colors = require('colors');
 
-var query = bluebird.promisify(bamazon.query, {
-    context: bamazon
+var query = bluebird.promisify(connection.query, {
+    context: connection
 });
 
 var exports = module.exports = {};

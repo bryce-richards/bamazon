@@ -5,6 +5,7 @@ USE Bamazon;
 CREATE TABLE products (
     item_id INTEGER(10) AUTO_INCREMENT NOT NULL,
 	product_name VARCHAR(50) NOT NULL,
+    category_name VARCHAR(50) NOT NULL,
     department_name VARCHAR(50) NOT NULL,
     price DECIMAL(10,2) NOT NULL,
     stock_quantity INTEGER(10) NOT NULL,
@@ -45,3 +46,5 @@ VALUES ('Bryce', 'Richards', 'M', 'brichards', 'password'),
 ('Cameron', 'Manavian', 'M', 'cmanavian', 'password'); 
 
 DESCRIBE managers;
+
+SELECT mgr_first_name FROM managers WHERE mgr_username = 'brichards' AND mgr_password = 'password';

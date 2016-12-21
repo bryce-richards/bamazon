@@ -2,13 +2,13 @@ var mysql = require('mysql');
 
 var bluebird = require('bluebird');
 
-var inquirer = require('inquirer');
-
 var database = require('./database.js');
 
-var customer = require('./bamazonCustomer.js');
+var Table = require('cli-table');
 
-var bamazon = mysql.createConnection({
+var colors = require('colors');
+
+var connection = mysql.createConnection({
     host: 'localhost',
     port: 3306,
     user: 'root',
@@ -16,116 +16,67 @@ var bamazon = mysql.createConnection({
     database: 'Bamazon'
 });
 
-bamazon.connect(function(error) {
+connection.connect(function(error) {
     if (error) {
         console.log('Products MySql Connection Error: ', error);
     }
 });
 
-var Table = require('cli-table');
-
-var colors = require('colors');
-
-var query = bluebird.promisify(bamazon.query, {
-    context: bamazon
+var query = bluebird.promisify(connection.query, {
+    context: connection
 });
 
 var exports = module.exports = {};
 
 function checkStock(id, units) {
-    var productId = id;
-    var productUnits = units;
-    return query('SELECT stock_quantity, price FROM products WHERE ?', {
-        item_id : productId
+    this.units = units;
+    this.id = id;
+    query('SELECT stock_quantity, price FROM products WHERE ?', {
+        item_id : this.id
     }, function(error, results) {
         if (error) {
             console.log('Check Stock Query Error: ', error);
         }
-        if (results.length > 0) {
-            var stock = results[0].stock_quantity;
-            var price = results[0].price;
-            if (stock >= units) {
-                var total = parseFloat((price * units).toFixed(2));
-                console.log('Product is in stock! Your total is: $' + total);
-                console.log('Thank you for your purchase!');
-                return removeStock(productId, productUnits, stock);
-            } else if (stock === 1) {
-                console.log('Only 1 item left in stock!');
-                return inquirer.prompt([
-                    {
-                        name: 'confirm',
-                        type: 'confirm',
-                        message: 'Would you like to purchase the remaining stock?'
-                    }
-                ]).then(function(answer) {
-                    if (answer.confirm) {
-                        var total = parseInt(price.toFixed(2));
-                        console.log('Thank you for your purchase! Your total is: $' + total);
-                        return removeStock(id, 1, stock);
-                    }
-                });
-            } else if (stock > 1) {
-                console.log('Only ' + stock + ' units in stock!');
-                return inquirer.prompt([
-                    {
-                        name: 'confirm',
-                        type: 'confirm',
-                        message: 'Would you still like to make a purchase?'
-                    }
-                ]).then(function(answer) {
-                    if (answer.confirm) {
-                        return inquirer.prompt([
-                            {
-                                name: 'units',
-                                type: 'prompt',
-                                message: 'How many units would you like to purchase?'
-                            }
-                        ]).then(function(answer) {
-                            return checkStock(productId, answer.units);
-                        });
-                    }
-                });
-            } else {
-                console.log('No more items in stock!');
-            }
-        } else {
-            console.log('Not a valid product!');
-        }
+        return results;
     })
-    .then(customer.customerPage)
     .catch(function(error) {
         console.log('CHECK STOCK ERROR: ', error);
-        process.exit(9);
+        process.exit();
     })
 }
 
-function displayProducts() {
-    var productsTbl = new Table(
+function customerDisplay() {
+    var customerProducts = new Table(
         {
-            head: ["ID", "Product", "Category", "Price"],
+            head: ["ID", "Product", "Category", "Department", "Price"],
             chars: { 'top': '═' , 'top-mid': '╤' , 'top-left': '╔' , 'top-right': '╗'
                 , 'bottom': '═' , 'bottom-mid': '╧' , 'bottom-left': '╚' , 'bottom-right': '╝'
                 , 'left': '║' , 'left-mid': '╟' , 'mid': '─' , 'mid-mid': '┼'
                 , 'right': '║' , 'right-mid': '╢' , 'middle': '│' }
         }
     );
-    return query('SELECT item_id, product_name, department_name, price FROM products ORDER BY department_name, product_name')
-        .then(function(results) {
+    return query('SELECT item_id, product_name, department_name, price FROM products ORDER BY department_name,' +
+        ' product_name', function(error, results) {
+        if (error) {
+            console.log('Customer Display Error', error);
+        } else {
             for (var i = 0; i < results.length; i++) {
-                productsTbl.push(
+                customerProducts.push(
                     [
                         results[i].item_id,
                         results[i].product_name,
+                        results[i].category_name,
                         results[i].department_name,
                         '$' + results[i].price
                     ]
                 );
             }
-            console.log(productsTbl.toString());
-        })
-        .catch(function(error) {
-            console.log('Display Products Error: ',error);
-        });
+            console.log(customerProducts.toString());
+        }
+    })
+    .catch(function(error) {
+        console.log('Display Products Error: ',error);
+    });
 }
 
 function displayMgrProducts() {
@@ -173,5 +124,5 @@ function removeStock(id, units, stock) {
 
 exports.checkStock = checkStock;
 exports.removeStock = removeStock;
-exports.displayProducts = displayProducts;
+exports.customerDisplay = customerDisplay;
 exports.displayMgrProducts = displayMgrProducts;

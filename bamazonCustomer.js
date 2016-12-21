@@ -6,7 +6,9 @@ var inquirer = require('inquirer');
 
 var database = require('./database.js');
 
-var bamazon = mysql.createConnection({
+var display = require('./display.js');
+
+var connection = mysql.createConnection({
     host: 'localhost',
     port: 3306,
     user: 'root',
@@ -14,7 +16,7 @@ var bamazon = mysql.createConnection({
     database: 'Bamazon'
 });
 
-bamazon.connect(function(error) {
+connection.connect(function(error) {
     if (error) {
         console.log('Products MySql Connection Error: ', error);
     }
@@ -22,46 +24,37 @@ bamazon.connect(function(error) {
 
 var exports = module.exports = {};
 
-var Table = require('cli-table');
-
-var colors = require('colors');
-
-var welcome = new Table(
-    {
-        head: ['Welcome to Bamazon!'.rainbow],
-        chars: { 'top': '═' , 'top-mid': '╤' , 'top-left': '╔' , 'top-right': '╗'
-        , 'bottom': '═' , 'bottom-mid': '╧' , 'bottom-left': '╚' , 'bottom-right': '╝'
-        , 'left': '║' , 'left-mid': '╟' , 'mid': '─' , 'mid-mid': '┼'
-        , 'right': '║' , 'right-mid': '╢' , 'middle': '│' }
-    }
-);
-
+// customer home page
 function customerPage() {
-    console.log(welcome.toString());
-    return database.displayProducts()
-    .then(function() {
+    // display Bamazon logo
+    display.welcome();
+    database.customerDisplay()
+    .then(function () {
         return inquirer.prompt([
             {
                 name: 'confirm',
                 type: 'confirm',
                 message: 'Would you like to make a purchase?'
             }
-        ]).then(function(answer) {
+        ]).then(function (answer) {
             if (answer.confirm) {
-                return makePurchase();
+                makePurchase();
             } else {
                 console.log('See you next time!');
                 process.exit();
             }
         });
     })
-    .catch(function(error) {
+    .catch(function (error) {
         throw error;
     });
 }
 
 function makePurchase() {
-    return inquirer.prompt([
+    var id;
+    var units;
+    // get product id and units
+    inquirer.prompt([
         {
             name: 'id',
             type: 'prompt',
@@ -73,7 +66,73 @@ function makePurchase() {
             message: 'How many units would you like to purchase?'
         }
     ]).then(function(answer) {
-        return database.checkStock(answer.id, answer.units);
+        id = answer.id;
+        units = answer.units;
+        // get stock quantity from database
+        database.checkStock(id, units);
+    }).then(function(results) {
+        console.log('CHECK STOCK RESULTS', results);
+        // save stock quantity and price
+        var stock = results[0].stock_quantity;
+        var price = results[0].price;
+        // if enough units are in stock...
+        if (stock >= units) {
+            var total = parseFloat(price * units).toFixed(2);
+            console.log('Product is in stock! Your total is: $' + total);
+            // confirm purchase
+            inquirer.prompt([
+                {
+                    name: 'confirm',
+                    type: 'confirm',
+                    message: 'Complete your purchase?'
+                }
+            ]).then(function(answer) {
+                if (answer.confirm) {
+                    console.log('Thank you for your purchase!');
+                    // update stock
+                    removeStock(id, units, stock);
+                    inquirer.prompt([
+                        {
+                            name: 'confirm',
+                            type: 'confirm',
+                            message: 'Return to home page?'
+                        }
+                    ]).then(function(answer) {
+                        if (answer.confirm) {
+                            customerPage();
+                        } else {
+                            console.log('See you next time!');
+                            process.exit();
+                        }
+                    })
+                } else {
+                    console.log('Returning to home page...');
+                    customerPage();
+                }
+            });
+        // if not enough in stock...
+        } else if (stock > 0) {
+            console.log('Only ' + stock + ' left in stock!');
+            inquirer.prompt([
+                {
+                    name: 'confirm',
+                    type: 'confirm',
+                    message: 'Would you like to purchase the remaining stock?'
+                }
+            ]).then(function(answer) {
+                if (answer.confirm) {
+                    var total = parseInt(price * stock).toFixed(2);
+                    console.log('Thank you for your purchase! Your total is: $' + total);
+                    return removeStock(id, stock, stock);
+                } else {
+                    console.log('Returning to home page...');
+                    customerPage();
+                }
+            });
+        } else {
+            console.log('No more items in stock!');
+            customerPage();
+        }
     })
     .catch(function(error) {
         if (error) {

@@ -9,3 +9,12 @@
 function executiveStart() {
 
 }
+
+function departmentSales() {
+
+}
+
+function createDepartment() {
+
+}
+
