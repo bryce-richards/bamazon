@@ -12,6 +12,22 @@ CREATE TABLE products (
     PRIMARY KEY (item_id)
 );
 
+DESCRIBE products;
+
+SELECT * FROM products;
+
+INSERT INTO products (product_name, category_name, department_name, price, stock_quantity)
+VALUES ('Diablo III: Ultimate Evil Edition','PlayStation 4','Video Games',49.99,20),
+('The Elder Scrolls V: Skyrim - Special Edition','PlayStation 4','Video Games',34.95,20),
+('Watch Dogs 2','PlayStation 4','Video Games',34.99,30),
+('FIFA 16 - Standard Edition','PlayStation 4','Video Games',19.87,30),
+('Dragon Age Inquisition - Standard Edition','PlayStation 4','Video Games',19.88,20),
+('Dead of Winter Crossroads Game','Board Games','Toys & Games',44.96,10),
+('Sheriff of Nottingham','Board Games','Toys & Games',22.99,15),
+('Arkham Horror','Board Games','Toys & Games',50.98,10),
+('Slaughterhouse-Five: A Novel','Literature & Fiction','Books',9.29,20),
+('Cat''s Cradle: A Novel','Literature & Fiction','Books',9.52,20);
+
 CREATE TABLE departments (
     department_id INTEGER(10) AUTO_INCREMENT NOT NULL,
     department_name VARCHAR(50) NOT NULL,
@@ -20,14 +36,10 @@ CREATE TABLE departments (
     PRIMARY KEY (department_id)
 );
 
-DESCRIBE products;
-
-SELECT * FROM products;
-
-INSERT INTO products (product_name, department_name, price, stock_quantity)
-VALUES ('Diablo III: Ultimate Evil Edition for PS4','Video Games','49.99',20);
-
-DELETE FROM products WHERE item_id = '2';
+INSERT INTO departments (department_name, over_head_costs, total_sales)
+VALUES ('Video Games',5000,0),
+('Toys & Games',5000,0),
+('Books',1000,0);
 
 UPDATE products SET stock_quantity = 20 WHERE item_id = 1;
 
@@ -40,6 +52,8 @@ CREATE TABLE managers (
     mgr_password VARCHAR(50) NOT NULL,
     PRIMARY KEY (mgr_id)
 );
+
+DELETE FROM products WHERE item_id IN ('1','2');
 
 INSERT INTO managers (mgr_first_name, mgr_last_name, mgr_gender, mgr_username, mgr_password)
 VALUES ('Bryce', 'Richards', 'M', 'brichards', 'password'),

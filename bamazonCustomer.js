@@ -138,7 +138,7 @@ function makePurchase() {
                             {
                                 name: 'confirm',
                                 type: 'confirm',
-                                message: 'Would you still like to purchase this product??'
+                                message: 'Would you still like to purchase this product?'
                             }
                         ]).then(function (answer) {
                             if (answer.confirm) {
