@@ -16,10 +16,9 @@ Managers can login with their pre-registered username and password. If granted a
 * This option will show managers all products as well as the current number of units in stock.
 
 ### View Low Inventory
-
 * This option will show managers all products that have fewer than 5 units in stock.
-### Add Inventory
 
+### Add Inventory
 * This option will allow managers to add more stock to existing products.
 
 ### Add New Product
