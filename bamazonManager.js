@@ -32,18 +32,9 @@ var managerOptions = [
     'Log Out'
 ];
 
-var Table = require('cli-table');
-
-var colors = require('colors');
-
-var query = bluebird.promisify(connection.query, {
-    context: connection
-});
-
 var exports = module.exports = {};
 
 function managerPage() {
-    clear();
     inquirer.prompt([
         {
             name: 'confirm',
@@ -53,7 +44,7 @@ function managerPage() {
     ])
     .then(function(answer) {
         if (answer.confirm) {
-            var managerName;
+            clear();
             inquirer.prompt([
                 {
                     name: 'username',
@@ -66,58 +57,19 @@ function managerPage() {
                     message: 'Password: '
                 }
             ])
-            .then(function(answer) {
-                var username = answer.username;
-                var password = answer.password;
-                return database.managerLogin(username, password);
-            })
-            .then(function(name) {
-                clear();
-                if (name) {
-                    managerName = name;
-                    function managerPrompt(managerName) {
-                        console.log('Welcome back, ' + managerName);
-                        inquirer.prompt([
-                            {
-                                name: 'choice',
-                                type: 'list',
-                                message: managerName + ', what would you like to do?',
-                                choices: managerOptions
-                            }
-                        ])
-                        .then(function (answer) {
-                            clear();
-                            display.welcome();
-                            switch (answer.choice) {
-                                case 'View Products for Sale' :
-                                    return viewProducts()
-                                    .then(managerPrompt(managerName));
-                                    break;
-                                case 'View Low Inventory' :
-                                    return lowInventory()
-                                    .then(managerPrompt(managerName));
-                                    break;
-                                case 'Add to Inventory' :
-                                    addInventory()
-                                    .then(managerPrompt(managerName));
-                                    break;
-                                case 'Add New Product' :
-                                    addProduct()
-                                    .then(managerPrompt(managerName));
-                                    break;
-                                case 'Log Out' :
-                                    console.log('See you next time, ' + managerName + '!');
-                                    process.exit();
-                                    break;
-                            }
-                        });
+                .then(function(answer) {
+                    var username = answer.username;
+                    var password = answer.password;
+                    return database.managerLogin(username, password);
+                })
+                .then(function(name) {
+                    if (name) {
+                        managerPrompt(name);
+                    } else {
+                        console.log('Not a valid username/password!');
+                        managerPage();
                     }
-                    managerPrompt(managerName);
-                } else {
-                    console.log('Not a valid username/password!');
-                    managerPage();
-                }
-            });
+                });
         } else {
             console.log('See you next time!');
             process.exit();
@@ -125,35 +77,71 @@ function managerPage() {
     });
 }
 
-
-function viewProducts() {
-    return database.managerDisplay();
-}
-
-function lowInventory() {
-    return database.lowInventory();
-}
-
-function addInventory() {
-    return database.managerDisplay()
-    .then(function () {
-        inquirer.prompt([
-            {
-                name: 'stock',
-                type: 'prompt',
-                message: 'Enter the Product ID'
-            },
-            {
-                name: 'units',
-                type: 'prompt',
-                message: 'How many units would you like to add?'
-            }
-        ])
-        .then(function (answer) {
-            return database.addInventory(answer.stock, answer.units)
-            .then(function())
+function managerPrompt(name) {
+    clear();
+    var managerName = name;
+    console.log('Welcome back, ' + managerName);
+    return inquirer.prompt([
+        {
+            name: 'choice',
+            type: 'list',
+            message: managerName + ', what would you like to do?',
+            choices: managerOptions
+        }
+    ])
+    .then(function(answer) {
+        clear();
+        if (answer.choice === 'View Products for Sale') {
+            return database.managerDisplay()
+        } else if (answer.choice === 'View Low Inventory') {
+            return database.lowInventory()
+        } else if (answer.choice === 'Add to Inventory') {
+            return database.addInventory()
+        } else if (answer.choice === 'Add New Product') {
+            return database.addProduct()
+        } else if (answer.choice === 'Log Out') {
+            console.log('See you next time, ' + managerName + '!');
+            process.exit();
+        }
+    }).then(function() {
+            inquirer.prompt([
+                {
+                    name: 'confirm',
+                    type: 'confirm',
+                    message: 'Return to menu?'
+                }
+            ]).then(function (answer) {
+                if (answer.confirm) {
+                    managerPrompt(managerName);
+                } else {
+                    clear();
+                    console.log('See you next time!');
+                    process.exit();
+                }
+            });
         });
-    });
 }
+
+// function addInventory() {
+//     return database.managerDisplay()
+//     .then(function () {
+//         inquirer.prompt([
+//             {
+//                 name: 'stock',
+//                 type: 'prompt',
+//                 message: 'Enter the Product ID'
+//             },
+//             {
+//                 name: 'units',
+//                 type: 'prompt',
+//                 message: 'How many units would you like to add?'
+//             }
+//         ])
+//         .then(function (answer) {
+//             return database.addInventory(answer.stock, answer.units)
+//             .then(function(answer)
+//         });
+//     });
+// }
 
 exports.managerPage = managerPage;

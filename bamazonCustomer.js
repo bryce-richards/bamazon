@@ -34,7 +34,7 @@ function customerPage() {
     // display Bamazon logo
     display.welcome();
     return database.customerDisplay()
-    .then(function () {
+    .then(function() {
         inquirer.prompt([
             {
                 name: 'confirm',

@@ -40,21 +40,62 @@ function customerDisplay() {
     );
     return query('SELECT item_id, product_name, category_name, department_name, price FROM products ORDER BY department_name, product_name')
     .then(function(results) {
-        for (var i = 0; i < results.length; i++) {
-            customerProducts.push(
-                [
-                    results[i].item_id,
-                    results[i].product_name,
-                    results[i].category_name,
-                    results[i].department_name,
-                    '$' + results[i].price
-                ]
-            );
+        if (results.length) {
+            for (var i = 0; i < results.length; i++) {
+                customerProducts.push(
+                    [
+                        results[i].item_id,
+                        results[i].product_name,
+                        results[i].category_name,
+                        results[i].department_name,
+                        '$' + results[i].price
+                    ]
+                );
+            }
+            console.log(customerProducts.toString());
+        } else {
+            console.log('No products in stock!');
         }
-        console.log(customerProducts.toString());
+    })
+    .catch(function(error) {
+        console.log('Display Products Error: ', error);
+        process.exit();
+    });
+}
+
+function managerDisplay() {
+    var managerProducts = new Table (
+        {
+            head: ['ID', 'Product', 'Category', 'Department', 'Price', 'Stock'],
+            chars: { 'top': '═' , 'top-mid': '╤' , 'top-left': '╔' , 'top-right': '╗'
+                , 'bottom': '═' , 'bottom-mid': '╧' , 'bottom-left': '╚' , 'bottom-right': '╝'
+                , 'left': '║' , 'left-mid': '╟' , 'mid': '─' , 'mid-mid': '┼'
+                , 'right': '║' , 'right-mid': '╢' , 'middle': '│' }
+        }
+    );
+    return query('SELECT item_id, product_name, category_name, department_name, price, stock_quantity FROM products ORDER BY department_name, product_name')
+    .then(function(results) {
+        if (results.length) {
+            for (var i = 0; i < results.length; i++) {
+                managerProducts.push(
+                    [
+                        results[i].item_id,
+                        results[i].product_name,
+                        results[i].category_name,
+                        results[i].department_name,
+                        '$' + results[i].price,
+                        results[i].stock_quantity
+                    ]
+                );
+            }
+            console.log(managerProducts.toString());
+        } else {
+            console.log('No products in stock!');
+        }
     })
     .catch(function(error) {
         console.log('Display Products Error: ',error);
+        process.exit();
     });
 }
 
@@ -92,40 +133,7 @@ function removeStock(id, units, stock) {
     }]);
 }
 
-function managerDisplay() {
-    var managerProducts = new Table(
-        {
-            head: ['ID', 'Product', 'Category', 'Department', 'Price', 'Stock'],
-            chars: { 'top': '═' , 'top-mid': '╤' , 'top-left': '╔' , 'top-right': '╗'
-                , 'bottom': '═' , 'bottom-mid': '╧' , 'bottom-left': '╚' , 'bottom-right': '╝'
-                , 'left': '║' , 'left-mid': '╟' , 'mid': '─' , 'mid-mid': '┼'
-                , 'right': '║' , 'right-mid': '╢' , 'middle': '│' }
-        }
-    );
-    return query('SELECT item_id, product_name, category_name, department_name, price, stock FROM products ORDER BY department_name, product_name')
-    .then(function(results) {
-        for (var i = 0; i < results.length; i++) {
-            productsTbl.push(
-                [
-                    results[i].item_id,
-                    results[i].product_name,
-                    results[i].category_name,
-                    results[i].department_name,
-                    '$' + results[i].price,
-                    results[i].stock_quantity
-                ]
-            );
-        }
-        console.log(managerProducts.toString());
-    })
-    .catch(function(error) {
-        console.log('Display Products Error: ',error);
-        process.exit();
-    });
-}
-
 function managerLogin(username, password) {
-    console.log('Manager username: ', username + '\nPassword: ', password);
     return query('SELECT mgr_first_name FROM managers WHERE ? AND ?', [
         {
             mgr_username: username
@@ -144,10 +152,10 @@ function managerLogin(username, password) {
 }
 
 function lowInventory() {
-    return query('SELECT item_id, product_name, department_name, price, stock_quantity FROM top5000 WHERE stock_quantity HAVING count < 5')
+    return query('SELECT * FROM products WHERE stock_quantity < 5')
     .then(function(results) {
         if (results.length) {
-            var lowInventoryTbl = new Table(
+            var lowInventoryTbl = new Table (
                 {
                     head: ['ID', 'Product', 'Category', 'Department', 'Price', 'Stock'],
                     chars: {
@@ -170,7 +178,7 @@ function lowInventory() {
                     ]
                 )
             }
-            console.log(lowInventoryTbl);
+            console.log(lowInventoryTbl.toString());
         } else {
             console.log('All products are sufficiently stocked!');
         }
@@ -182,12 +190,10 @@ function addInventory(id, stock) {
         stock_quantity: stock
     }, {
         item_id: id
-    }]).then(function(error) {
-        if (error) {
-            console.log('Add Inventory Error: ', error);
-        } else {
-            return true;
-        }
+    }])
+    .then(function(results) {
+        console.log(results);
+        return results;
     });
 }
 
