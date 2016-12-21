@@ -30,7 +30,7 @@ Work In Progress...
 
 
 ## Demo
-To download a demo of this application in action, click this [link](https://github.com/bryce-richards/bamazon/blob/master/demo.mp4?raw=true)
+To download a demo of this application in action, click this [link](https://github.com/bryce-richards/bamazon/blob/master/demo2.mp4?raw=true)
 
 
 ## Questions/Comments
