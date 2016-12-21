@@ -113,16 +113,31 @@ function checkStock(id) {
     .catch(function(error) {
         console.log('Check Stock Error: ', error);
         process.exit();
-    })
+    });
 }
 
 function addSales(department, sales) {
-    console.log('Adding sales to database...');
-    return query('UPDATE departments SET ? WHERE ?', [{
-        total_sales: sales
-    }, {
-        department_name: department
-    }]);
+    var salesDept = department;
+    var newSales = sales;
+    return query('SELECT total_sales FROM departments WHERE ?', {
+        department_name : salesDept
+    })
+    .then(function(result) {
+        var totalSales = result[0].total_sales;
+        var updatedSales = (parseFloat(totalSales) + parseFloat(newSales)).toFixed(2);
+        return query('UPDATE departments SET ? WHERE ?', [{
+            total_sales: updatedSales
+        }, {
+            department_name: salesDept
+        }])
+        .catch(function(error) {
+            console.log('Updated Sales Error: ', error);
+        });
+    })
+    .catch(function(error) {
+        console.log('Add Sales Error: ', error);
+        process.exit();
+    });
 }
 
 function removeStock(id, units, stock) {

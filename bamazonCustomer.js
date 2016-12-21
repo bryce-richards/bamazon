@@ -117,14 +117,14 @@ function makePurchase() {
                                         message: 'Return to home page?'
                                     }
                                 ])
-                                    .then(function (answer) {
-                                        if (answer.confirm) {
-                                            customerPage();
-                                        } else {
-                                            console.log('See you next time!');
-                                            process.exit();
-                                        }
-                                    })
+                                .then(function (answer) {
+                                    if (answer.confirm) {
+                                        customerPage();
+                                    } else {
+                                        console.log('See you next time!');
+                                        process.exit();
+                                    }
+                                });
                             } else {
                                 console.log('Returning to home page...');
                                 customerPage();
