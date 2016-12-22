@@ -149,11 +149,39 @@ function makePurchase() {
                         });
                     } else {
                         console.log('No more items in stock!');
-                        customerPage();
+                        inquirer.prompt([
+                            {
+                                name: 'confirm',
+                                type: 'confirm',
+                                message: 'Would you like to make another purchase?'
+                            }
+                        ]).then(function (answer) {
+                            if (answer.confirm) {
+                                makePurchase();
+                            } else {
+                                clear();
+                                console.log('See you next time!');
+                                process.exit();
+                            }
+                        });
                     }
                 } else {
                     console.log('Not a valid product ID');
-                    customerPage();
+                    inquirer.prompt([
+                        {
+                            name: 'confirm',
+                            type: 'confirm',
+                            message: 'Would you like to make another purchase?'
+                        }
+                    ]).then(function (answer) {
+                        if (answer.confirm) {
+                            makePurchase();
+                        } else {
+                            clear();
+                            console.log('See you next time!');
+                            process.exit();
+                        }
+                    });
                 }
             })
             .catch(function (error) {
