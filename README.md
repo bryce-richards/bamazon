@@ -24,15 +24,20 @@ Managers can login with their pre-registered username and password. If granted a
 ### Add New Product
 * This option will allow managers to add an entirely new product, which will automatically be updated in the Bamazon database for future display
 
-
-## Executive
-Work In Progress...
-
-
 ## Demos
 To download a demo of this application in action, click this [link](https://github.com/bryce-richards/bamazon/blob/master/demo.mp4?raw=true)
 
 To download a preview of the department sales functionality, click this [link](https://github.com/bryce-richards/bamazon/blob/master/add_sales_demo.mp4?raw=true)
+
+## Technology
+
+* [Node](https://nodejs.org/en/)
+  * [bluebird](http://bluebirdjs.com/docs/install.html)
+  * [cli-table](https://www.npmjs.com/package/cli-table)
+  * [clear](https://www.npmjs.com/package/clear)
+  * [colors](https://www.npmjs.com/package/colors)
+  * [inquirer](https://www.npmjs.com/package/inquirer)
+  * [mysql](https://www.npmjs.com/package/mysql)
 
 ## Questions/Comments
 Can be directed to Bryce @ **brichards5@gmail.com**.
